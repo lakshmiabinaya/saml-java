@@ -1,0 +1,16 @@
+idp:
+    appId: ${APP_ID}
+    entityId: ${ENTITY_ID}
+    postLogoutURL: ${POST_LOGOUT_URL:#{'/'}}
+    metadataURL: ${IDP_METADATA_URL}
+
+server:
+    port: 8443
+    ssl:
+            key-alias: spring
+            key-store: classpath:keystore.jks
+            key-store-password: secret
+spring:
+    main:
+        bannerMode: 'OFF'
+
