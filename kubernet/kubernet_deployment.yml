@@ -1,0 +1,72 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ${PROJECT_NAME}
+spec:
+  selector:
+    app: ${PROJECT_NAME}
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8443
+  type: LoadBalancer
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: ${PROJECT_NAME}
+  labels:
+    app: ${PROJECT_NAME}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${PROJECT_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${PROJECT_NAME}
+    spec:
+      containers:
+      - env:
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: cloudsql-db-credentials
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: cloudsql-db-credentials
+        image: $GOOGLE_CLOUD_RESOURCE/$GOOGLE_PROJECT_ID/$PROJECT_NAME:latest
+        name: ${PROJECT_NAME}
+        ports:
+        - name: http
+          containerPort: 8443
+          protocol: TCP
+        resources:
+          requests:
+            memory: "12Gi"
+            cpu: "3"
+          limits:
+            memory: "24Gi"
+            cpu: "6"
+      - name: cloudsql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.11
+        resources:
+          requests:
+            memory: "3Gi"
+            cpu: "1"
+          limits:
+            memory: "6Gi"
+            cpu: "2"
+        command: ["/cloud_sql_proxy","-instances=$GOOGLE_PROJECT_ID:$GOOGLE_COMPUTE_ZONE:sl-lms=tcp:5432","-credential_file=/secrets/cloudsql/credentials.json"]
+        volumeMounts:
+          - name: cloudsql-instance-credentials
+            mountPath: /secrets/cloudsql
+            readOnly: true
+      volumes:
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
