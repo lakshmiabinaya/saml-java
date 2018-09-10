@@ -92,6 +92,7 @@ workflows:
               only:
                 - release
                 - develop
+                - circleci
       - push_and_deploy_gcp:
           requires:
             - build_and_test
@@ -99,10 +100,3 @@ workflows:
             branches:
               only:
                 - release
-      - push_and_deploy_gcp:
-          requires:
-            - build_and_test
-          filters:
-            branches:
-              only:
-                - develop
