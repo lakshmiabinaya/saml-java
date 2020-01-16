@@ -21,3 +21,7 @@ IDP_METADATA_URL=<"METADATA URL for IDP">
 
 Start the SAMLApplication class and hit localhost:8443. You will be taken to your IDP and back to the index page once you provide valid login credentials.
 You can logout from the link provided in the index page.
+
+## Explanation
+
+https://blog.imaginea.com/implementing-java-single-signon-with-saml/
